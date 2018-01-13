@@ -1,4 +1,4 @@
-package src;
+package src.binance;
 
 import java.net.URI;
 import java.util.Map;
@@ -7,17 +7,16 @@ import src.base.Coin;
 import src.base.Exchange;
 import src.base.OrderBook;
 
+import static src.base.Coin.BTC;
+import static src.base.Coin.LTC;
+
 
 public class Binance extends Exchange {
 
     BinanceWebSocketClient webSocketClient;
 
-
-    public static final String BINANCE_ORDER_BOOK_URL = "wss://stream.binance.com:9443/ws/btcusd@depth";
-//    wss://stream.binance.com:9443/ws/[symbol in lower case]@depth   (e.g. wss://stream.binance.com:9443/ws/ethbtc@depth)
-
-    public Binance() {
-        webSocketClient = new BinanceWebSocketClient(URI.create(BINANCE_ORDER_BOOK_URL));
+    public Binance(BinanceConfig binanceConfig) {
+        webSocketClient = new BinanceWebSocketClient(binanceConfig.getDefaultBinanceOrderBook());
     }
 
 
@@ -47,5 +46,11 @@ public class Binance extends Exchange {
     @Override
     public OrderBook getOrderBook(Coin coin) {
         return super.getOrderBook(coin);
+    }
+
+    public static void main(String[] args) {
+        BinanceConfig binanceConfig = new BinanceConfig(LTC, BTC);
+        URI defaultBinanceOrderBook = binanceConfig.getDefaultBinanceOrderBook();
+        BinanceWebSocketClient binanceWebSocketClient = new BinanceWebSocketClient(defaultBinanceOrderBook);
     }
 }

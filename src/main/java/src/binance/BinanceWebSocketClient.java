@@ -1,4 +1,4 @@
-package src;
+package src.binance;
 
 import org.java_websocket.WebSocketListener;
 import org.java_websocket.client.WebSocketClient;
@@ -28,6 +28,7 @@ public class BinanceWebSocketClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         System.out.println("opened connection");
+
         // if you plan to refuse connection based on ip or httpfields overload: onWebsocketHandshakeReceivedAsClient
     }
 

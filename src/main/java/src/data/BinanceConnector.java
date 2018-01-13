@@ -1,14 +1,12 @@
 package src.data;
 
 
-import src.Binance;
+import src.binance.Binance;
 
 public class BinanceConnector extends ExchangeConnector<Binance> {
 
-    private final Binance binance;
 
     public BinanceConnector() {
-        binance = new Binance();
     }
 
     @Override

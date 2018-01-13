@@ -3,13 +3,16 @@ package javao;
 import org.junit.Before;
 import org.junit.Test;
 
-import src.Binance;
 import src.Bitfinex;
 import src.Processor;
+import src.binance.Binance;
+import src.binance.BinanceConfig;
 import src.data.BinanceConnector;
 import src.data.BitfinexConnector;
 
+import static src.base.Coin.BTC;
 import static src.base.Coin.IOTA;
+import static src.base.Coin.LTC;
 
 public class ProcessorTest {
 
@@ -26,7 +29,7 @@ public class ProcessorTest {
 
     @Test
     public void start() throws Exception {
-        Binance binance = new Binance();
+        Binance binance = new Binance(new BinanceConfig(LTC, BTC));
         Bitfinex bitfinex = new Bitfinex();
         binance.putOrderBook(IOTA, OrderBooks.createFakeOrderBook());
         bitfinex.putOrderBook(IOTA, OrderBooks.createFakeOrderBookLowerPrice());

@@ -3,14 +3,16 @@ package javao;
 import org.junit.Before;
 import org.junit.Test;
 
-import src.Binance;
+import src.binance.Binance;
+import src.binance.BinanceConfig;
 
 import static org.junit.Assert.assertTrue;
+import static src.base.Coin.BTC;
 import static src.base.Coin.LTC;
 
 public class BinanceTest {
 
-    private final Binance binance = new Binance();
+    private final Binance binance = new Binance(new BinanceConfig(LTC,BTC));
 
     @Before
     public void setUp() throws Exception {
