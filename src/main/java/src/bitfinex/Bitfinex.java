@@ -1,4 +1,4 @@
-package src;
+package src.bitfinex;
 
 import java.util.Map;
 

@@ -3,7 +3,7 @@ package src;
 import src.base.Exchange;
 import src.base.OrderBook;
 import src.data.BinanceConnector;
-import src.data.BitfinexConnector;
+import src.bitfinex.BitfinexConnector;
 import src.data.ExchangeConnector;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.DisposableSubscriber;
