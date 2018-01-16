@@ -20,6 +20,10 @@ public class Processor {
         this.bitfinexConnector = bitfinexConnector;
     }
 
+    public void checkOrderBooksProfit(OrderBook bookToSell, OrderBook bookToBuy) {
+
+    }
+
     public void start() {
         binanceConnector.start();
         bitfinexConnector.start();
@@ -32,6 +36,7 @@ public class Processor {
             Log.debug("Will check");
             if (binanceOrderBook.asks.get(0).getPrice() < bitfinexOrderBook.bids.get(0).getPrice()) {
                 Log.debug("Buy at Binance and sell at Bitfinex");
+                checkOrderBooksProfit(bitfinexOrderBook, binanceOrderBook);
             } else if (bitfinexOrderBook.asks.get(0).getPrice() < binanceOrderBook.bids.get(0).getPrice()) {
                 Log.debug("Buy at Bitfinex and sell at Binance");
             }

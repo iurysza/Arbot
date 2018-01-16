@@ -1,4 +1,4 @@
-package javao;
+package src;
 
 import org.junit.Assert;
 import org.junit.Before;

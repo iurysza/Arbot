@@ -1,9 +1,8 @@
-package javao;
+package src;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import src.Bitfinex;
+import src.bitfinex.Bitfinex;
 
 import static org.junit.Assert.assertTrue;
 import static src.base.Coin.LTC;
