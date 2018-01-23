@@ -24,4 +24,8 @@ public abstract class ExchangeConnector<T extends Exchange> {
         onExchangeUpdated(exchange);
     }
 
+    public interface ExchangeResult {
+        void onResult(Exchange exchange);
+    }
+
 }

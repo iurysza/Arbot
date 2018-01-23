@@ -1,5 +1,7 @@
 package src.bitfinex;
 
+import src.base.Coin;
+
 public class BitfinexConfig {
     public final static String uri = "wss://api.bitfinex.com/ws/";
     private PAIR pair;
@@ -8,7 +10,7 @@ public class BitfinexConfig {
     private Integer length;
 
     public static enum PAIR {
-        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC
+        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC, IOTBTC
     }
 
     /**
@@ -35,8 +37,30 @@ public class BitfinexConfig {
         this.length = length;
     }
 
+
     public static BitfinexConfig getDefaultConfig(){
         return new BitfinexConfig(PAIR.BTCUSD, PRECISION.P0, FREQUENCY.F0, 25);
+    }
+
+    private void setPair(PAIR pair) {
+        this.pair = pair;
+    }
+
+    public static BitfinexConfig getConfigByCoin(Coin coin) {
+        BitfinexConfig config = BitfinexConfig.getDefaultConfig();
+        switch (coin){
+            case IOTA:
+                config.setPair(PAIR.IOTBTC);
+                break;
+            case LTC:
+                config.setPair(PAIR.LTCBTC);
+                break;
+            case BTC:
+                config.setPair(PAIR.BTCUSD);
+                break;
+        }
+
+        return config;
     }
 
     public String generateJSON(){

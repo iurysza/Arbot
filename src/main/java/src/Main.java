@@ -1,6 +1,6 @@
 package src;
 
-import src.data.BinanceConnector;
+import src.binance.BinanceConnector;
 import src.bitfinex.BitfinexConnector;
 
 import java.net.URISyntaxException;

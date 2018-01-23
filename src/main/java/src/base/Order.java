@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Order {
-    private double price;
-    private double amount;
+    private Double price;
+    private Double amount;
 }
