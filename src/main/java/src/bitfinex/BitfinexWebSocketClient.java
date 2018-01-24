@@ -2,17 +2,18 @@ package src.bitfinex;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import src.Log;
-import src.Utils;
-import src.base.Coin;
-import src.base.Order;
-import src.base.OrderBook;
-import src.data.ExchangeConnector.ExchangeResult;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import src.Log;
+import src.Utils;
+import src.base.Coin;
+import src.base.Order;
+import src.base.OrderBook;
+import src.binance.data.ExchangeConnector;
 
 public class BitfinexWebSocketClient extends WebSocketClient {
 
@@ -22,9 +23,9 @@ public class BitfinexWebSocketClient extends WebSocketClient {
     private boolean subscribed;
     private Bitfinex bitfinex;
     private Coin coin;
-    private ExchangeResult exchangeResult;
+    private ExchangeConnector.ExchangeResult exchangeResult;
 
-    public BitfinexWebSocketClient(Bitfinex bitfinex, Coin coin, ExchangeResult exchangeResult) throws URISyntaxException {
+    public BitfinexWebSocketClient(Bitfinex bitfinex, Coin coin, ExchangeConnector.ExchangeResult exchangeResult) throws URISyntaxException {
         super(new URI(BitfinexConfig.uri));
         this.bitfinex = bitfinex;
         this.coin = coin;
@@ -85,7 +86,7 @@ public class BitfinexWebSocketClient extends WebSocketClient {
 
     private void getSnapshot(String message) {
         @SuppressWarnings("unchecked") // ["<CHANNEL_ID>", [["<PRICE>", "<COUNT>", "<AMOUNT>"],...]]
-        ArrayList list = Utils.gson.fromJson(message, ArrayList.class);
+                ArrayList list = Utils.gson.fromJson(message, ArrayList.class);
         @SuppressWarnings("unchecked")
         ArrayList<ArrayList<Double>> snapshot = (ArrayList<ArrayList<Double>>) list.get(1);
 
@@ -108,7 +109,7 @@ public class BitfinexWebSocketClient extends WebSocketClient {
         }
 
         @SuppressWarnings("unchecked") // ["<CHANNEL_ID>", "<PRICE>", "<COUNT>", "<AMOUNT>"]
-        ArrayList<Double> list = (ArrayList<Double>) Utils.gson.fromJson(message, ArrayList.class);
+                ArrayList<Double> list = (ArrayList<Double>) Utils.gson.fromJson(message, ArrayList.class);
 
         OrderBook orderBook = bitfinex.getOrderBook(coin);
         List<Order> orders;

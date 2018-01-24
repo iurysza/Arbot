@@ -1,11 +1,11 @@
 package src.bitfinex;
 
 
+import java.net.URISyntaxException;
+
 import src.base.Coin;
 import src.base.Exchange;
-import src.data.ExchangeConnector;
-
-import java.net.URISyntaxException;
+import src.binance.data.ExchangeConnector;
 
 public class BitfinexConnector extends ExchangeConnector<Bitfinex> implements ExchangeConnector.ExchangeResult {
 
