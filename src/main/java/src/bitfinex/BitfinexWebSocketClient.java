@@ -92,13 +92,14 @@ public class BitfinexWebSocketClient extends WebSocketClient {
 
         OrderBook orderBook = new OrderBook();
         for (ArrayList<Double> s : snapshot) {
-            Order order = new Order(s.get(1), s.get(2));
+            Order order = new Order(s.get(0), Math.abs(s.get(2)));
             if (s.get(2) > 0) { //bid
                 orderBook.bids.add(order);
             } else { //ask
                 orderBook.asks.add(order);
             }
         }
+
         bitfinex.putOrderBook(coin, orderBook);
     }
 
@@ -108,35 +109,39 @@ public class BitfinexWebSocketClient extends WebSocketClient {
         }
 
         @SuppressWarnings("unchecked") // ["<CHANNEL_ID>", "<PRICE>", "<COUNT>", "<AMOUNT>"]
-                ArrayList<Double> list = (ArrayList<Double>) Utils.gson.fromJson(message, ArrayList.class);
+        ArrayList<Double> list = (ArrayList<Double>) Utils.gson.fromJson(message, ArrayList.class);
 
+        Double price = list.get(1);
+        Double count = list.get(2);
+        Double amount = list.get(3);
         OrderBook orderBook = bitfinex.getOrderBook(coin);
+
         List<Order> orders;
-        boolean isAsk = false;
-        if (list.get(3) > 0) { //bid
+        int index = 0;
+        if (amount > 0) { //bid
             orders = orderBook.bids;
+            while(index < orders.size() && price < orders.get(index).getPrice()) index++;
         } else { //ask
             orders = orderBook.asks;
-            isAsk = true;
+            while(index < orders.size() && price > orders.get(index).getPrice()) index++;
         }
 
-        boolean has = false;
-        for (Order order : orders) {
-            if (order.getPrice().equals(list.get(1))) {
-                order.setAmount(list.get(3));
-                has = true;
-                break;
-            }
-        }
-        if (!has) {
-            orders.add(new Order(list.get(1), list.get(3)));
-            if (isAsk) {
-                orderBook.sortAsks();
+        if(count > 0){ //add or update
+            if(index == orders.size()){
+                orders.add(new Order(price, Math.abs(amount)));
+            } else if (price.equals(orders.get(index).getPrice())){
+                orders.get(index).setAmount(Math.abs(amount));
             } else {
-                orderBook.sortBids();
+                orders.add(index, new Order(price, Math.abs(amount)));
+            }
+        } else { // remove
+            if(index < orders.size()){
+                orders.remove(index);
             }
         }
 
         exchangeResult.onResult(bitfinex);
+        Log.print(" ------------------------ "+bitfinex.getName()+" --------------------- ");
+        Log.print(orderBook.toString());
     }
 }

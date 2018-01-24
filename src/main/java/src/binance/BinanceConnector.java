@@ -16,7 +16,7 @@ public class BinanceConnector extends ExchangeConnector<Binance> implements Exch
 
     @Override
     public void start() {
-        socketClient.connect();
+        //socketClient.connect();
     }
 
     @Override

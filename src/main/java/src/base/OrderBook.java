@@ -1,6 +1,7 @@
 package src.base;
 
 import com.google.gson.annotations.SerializedName;
+import src.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,5 +30,22 @@ public class OrderBook {
                 return (o1.getPrice() < o2.getPrice()) ? 1 : -1;
             }
         });
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder text = new StringBuilder("|            BID            |            ASK            |\n");
+        int size = Math.min(bids.size(), asks.size());
+        for(int i = 0;i < size;i++ ){
+            Order bid = bids.get(i);
+            Order ask = asks.get(i);
+            text.append("| ")
+                .append(bid.toString())
+                .append(" | ")
+                .append(ask.toString())
+                .append(" |\n");
+        }
+
+        return text.toString();
     }
 }
