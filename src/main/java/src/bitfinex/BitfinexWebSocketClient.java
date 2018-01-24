@@ -91,13 +91,14 @@ public class BitfinexWebSocketClient extends WebSocketClient {
 
         OrderBook orderBook = new OrderBook();
         for (ArrayList<Double> s : snapshot) {
-            Order order = new Order(s.get(1), s.get(2));
+            Order order = new Order(s.get(0), s.get(2));
             if (s.get(2) > 0) { //bid
                 orderBook.bids.add(order);
             } else { //ask
                 orderBook.asks.add(order);
             }
         }
+
         bitfinex.putOrderBook(coin, orderBook);
     }
 

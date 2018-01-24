@@ -1,6 +1,7 @@
 package src.base;
 
 import com.google.gson.annotations.SerializedName;
+import src.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,5 +30,10 @@ public class OrderBook {
                 return (o1.getPrice() < o2.getPrice()) ? 1 : -1;
             }
         });
+    }
+
+    @Override
+    public String toString() {
+        String text = "|   BID   |   ASK   |";
     }
 }
