@@ -1,17 +1,27 @@
 package src;
 
+import io.reactivex.Observable;
+import javafx.util.Pair;
+import src.base.Coin;
 import src.base.Exchange;
-import src.base.OrderBook;
+import src.base.Order;
 import src.data.BinanceConnector;
 import src.bitfinex.BitfinexConnector;
 import src.data.ExchangeConnector;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.DisposableSubscriber;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static src.base.Coin.BTC;
 import static src.base.Coin.IOTA;
 
 public class Processor {
 
+    public static final double THRESHOLD = 1.0;
     private ExchangeConnector binanceConnector;
     private ExchangeConnector bitfinexConnector;
 
@@ -20,8 +30,159 @@ public class Processor {
         this.bitfinexConnector = bitfinexConnector;
     }
 
-    public void checkOrderBooksProfit(OrderBook bookToSell, OrderBook bookToBuy) {
+    private Pair<Exchange, Exchange> getCheapAndExpensive(Coin coin, Exchange... exchanges) {
+        Exchange cheap = null;
+        Exchange expensive = null;
+        double cheapestPrice = Double.MAX_VALUE;
+        double mostExpensivePrice = Double.MIN_VALUE;
+        for (Exchange exchange : exchanges) {
+            double askPrice = exchange.getOrderBook(coin).asks.get(0).getPrice();
+            if (askPrice < cheapestPrice) {
+                cheapestPrice = askPrice;
+                cheap = exchange;
+            }
+            double bidPrice = exchange.getOrderBook(coin).bids.get(0).getPrice();
+            if (bidPrice > mostExpensivePrice) {
+                mostExpensivePrice = bidPrice;
+                expensive = exchange;
+            }
+        }
 
+        return new Pair<>(cheap, expensive);
+    }
+
+    public Exchange simulateOperation(Coin coin, Exchange... exchanges) {
+        long start = System.currentTimeMillis();
+        Pair<Exchange, Exchange> cheapAndExpensive = getCheapAndExpensive(coin, exchanges);
+        Exchange cheapest = cheapAndExpensive.getKey();
+        Exchange expensive = cheapAndExpensive.getValue();
+        if (cheapest == null || expensive == null || cheapest == expensive) {
+            return null;
+        }
+        double maxToTrade = Collections.min(Arrays.asList(cheapest.getWalletAmount(coin),
+                expensive.getWalletAmount(coin)));
+        double btcMaxToTrade = Collections.min(Arrays.asList(cheapest.getWalletAmount(BTC),
+                expensive.getWalletAmount(BTC)));
+
+        double initialBtcSum = Exchange.getSumInWallets(BTC, exchanges);
+
+        int buyBookCount = 0;
+        int sellBookCount = 0;
+        boolean retry = true;
+
+        List<Order> asks = new ArrayList(cheapest.getOrderBook(coin).asks);
+        List<Order> bids = new ArrayList(expensive.getOrderBook(coin).bids);
+        Order orderToBuy = asks.get(buyBookCount);
+        Order orderToSell = bids.get(sellBookCount);
+
+        List<Order> bidsToExecute = new ArrayList<>();
+        List<Order> asksToExecute = new ArrayList<>();
+        int lastI = 0;
+        double coinsAvailableToTrade = maxToTrade;
+        double btcAvailableToTrade = btcMaxToTrade;
+        for (Order bid : bids) {
+            int i = lastI;
+            while (i < asks.size()) {
+                Order ask = asks.get(i);
+                Log.debug(bid + " to ask: " + ask);
+                double percentage = (bid.getPrice() / ask.getPrice() - 1) * 100;
+                if (percentage < THRESHOLD) {
+                    lastI = -1;
+                    break;
+                }
+                Log.debug(percentage + "%");
+                double askAmount = ask.getAmount();
+                double bidAmount = bid.getAmount();
+                if (bidAmount > askAmount) {
+                    i++;
+                    lastI = i;
+                    if (askAmount > coinsAvailableToTrade) {
+                        askAmount = coinsAvailableToTrade;
+                        lastI = -1;
+                    }
+                    bidsToExecute.add(new Order(bid.getPrice(), askAmount));
+                    asksToExecute.add(new Order(ask.getPrice(), askAmount));
+                    coinsAvailableToTrade -= askAmount;
+                    Log.debug("Using all of ask");
+                } else {
+                    Log.debug("Using all of bid");
+                    lastI = i;
+                    if (bidAmount > coinsAvailableToTrade) {
+                        bidAmount = coinsAvailableToTrade;
+                        lastI = -1;
+                    }
+                    bidsToExecute.add(new Order(bid.getPrice(), bidAmount));
+                    asksToExecute.add(new Order(ask.getPrice(), bidAmount));
+                    asks.set(i, new Order(ask.getPrice(), askAmount - bidAmount));
+                    coinsAvailableToTrade -= bidAmount;
+                    break;
+                }
+            }
+            if (lastI < 0) {
+                break;
+            }
+        }
+        long end = System.currentTimeMillis();
+        Observable.just("")
+                .doOnNext(s -> Log.debug("Asks to execute:"))
+                .flatMap(o -> Observable.fromIterable(asksToExecute))
+                .startWith(() -> {
+                    Log.debug("Bids to execute:");
+                    return bidsToExecute.iterator();
+                })
+                .doOnNext(order -> Log.debug(order.toString() + " - " + order.getBtcAmount()))
+                .subscribe();
+//        asksToExecute.forEach(order -> Log.debug(order.toString()));
+//        Observable.fromIterable(bidsToExecute).forEach(order -> Log.debug(order.toString()));
+
+//        double coinBought = processTrade(coin, cheapest, expensive, orderToBuy, orderToSell, initialBtcSum);
+//        if (Math.abs(coinBought - orderToBuy.getAmount()) < 0.0001) {
+//            Log.debug("Exchange: " + cheapest + " - " + coinBought + " --- " + orderToBuy.getAmount());
+//            buyBookCount += 1;
+//            orderToBuy = asks.get(buyBookCount);
+//            orderToSell = new Order(orderToSell.getPrice(), orderToSell.getAmount() - coinBought);
+//        } else if (Math.abs(coinBought - orderToSell.getAmount()) < 0.0001) {
+//            Log.debug("Exchange: " + expensive + " - " + coinBought + " --- " + orderToSell.getAmount());
+//            sellBookCount += 1;
+//            orderToBuy = new Order(orderToBuy.getPrice(), orderToBuy.getAmount() - coinBought);
+//            orderToSell = bids.get(sellBookCount);
+//        } else {
+//            Log.print("Minimum is from wallet! Needs to be rebalanced");
+//            retry = false;
+//        }
+//        if (retry) {
+//            coinBought = processTrade(coin, cheapest, expensive, orderToBuy, orderToSell, initialBtcSum);
+//        }
+        Log.debug("Time spent: " + (end - start) + "ms");
+        return cheapest;
+    }
+
+    private double processTrade(Coin coin, Exchange cheapest, Exchange expensive, Order orderToBuy, Order orderToSell, double initialBtcSum) {
+        double maxToBuy = Collections.min(
+                Arrays.asList(orderToSell.getAmount(),
+                        orderToBuy.getAmount(),
+                        cheapest.getWalletAmount(coin),
+                        expensive.getWalletAmount(coin)));
+        double maxToSell = maxToBuy * (1 - cheapest.getTakerFee());
+
+        double spentBtc = maxToBuy * orderToBuy.getPrice();
+        double receivedCoin = cheapest.buyCoinWithFee(spentBtc, coin);
+
+        double receivedBtc = expensive.sellCoinWithFee(maxToSell, coin);
+
+        Log.debug("Max: " + maxToBuy + " - IOTA: " + receivedCoin + " - BTC:" + receivedBtc);
+        cheapest.setWallet(coin, cheapest.getWalletAmount(coin) + receivedCoin);
+        cheapest.setWallet(BTC, cheapest.getWalletAmount(BTC) - spentBtc);
+        expensive.setWallet(coin, expensive.getWalletAmount(coin) - maxToSell);
+        expensive.setWallet(BTC, expensive.getWalletAmount(BTC) + receivedBtc);
+        Log.debug(cheapest + " - " + coin.name() + ": " + cheapest.getWalletAmount(coin) + " - BTC: " + cheapest.getWalletAmount(BTC));
+        Log.debug(expensive + " - " + coin.name() + ": " + expensive.getWalletAmount(coin) + " - BTC: " + expensive.getWalletAmount(BTC));
+        Log.debug("Sums: " + coin.name() + ": " + Exchange.getSumInWallets(coin, cheapest, expensive));
+        double finalBtc = Exchange.getSumInWallets(BTC, cheapest, expensive);
+        Log.debug("Sums: " + BTC.name() + ": " + finalBtc);
+        double diff = finalBtc - initialBtcSum;
+        Log.debug("Btc increase: " + diff + " - Diff percent: " + ((finalBtc / initialBtcSum - 1) * 100) + "%");
+        return maxToBuy;
     }
 
     public void start() {
@@ -31,15 +192,8 @@ public class Processor {
         @SuppressWarnings("unchecked") Flowable<Exchange> bitfinexFlowable = bitfinexConnector.asFlowable();
 
         Flowable.combineLatest(binanceFlowable, bitfinexFlowable, (binance, bitfinex) -> {
-            OrderBook binanceOrderBook = binance.getOrderBook(IOTA);
-            OrderBook bitfinexOrderBook = bitfinex.getOrderBook(IOTA);
             Log.debug("Will check");
-            if (binanceOrderBook.asks.get(0).getPrice() < bitfinexOrderBook.bids.get(0).getPrice()) {
-                Log.debug("Buy at Binance and sell at Bitfinex");
-                checkOrderBooksProfit(bitfinexOrderBook, binanceOrderBook);
-            } else if (bitfinexOrderBook.asks.get(0).getPrice() < binanceOrderBook.bids.get(0).getPrice()) {
-                Log.debug("Buy at Bitfinex and sell at Binance");
-            }
+            simulateOperation(IOTA, binance, bitfinex);
             return "DONE";
         })
 //                .subscribeOn(Schedulers.computation())

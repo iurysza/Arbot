@@ -1,10 +1,12 @@
 package src;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import src.base.Coin;
+import src.base.Exchange;
 import src.bitfinex.Bitfinex;
-import src.Processor;
 import src.binance.Binance;
 import src.binance.BinanceConfig;
 import src.bitfinex.BitfinexConnector;
@@ -25,6 +27,21 @@ public class ProcessorTest {
         binanceConnector = new BinanceConnector();
         bitfinexConnector = new BitfinexConnector();
         processor = new Processor(binanceConnector, bitfinexConnector);
+    }
+
+    @Test
+    public void checkOrderBooksProfit() throws Exception {
+        Coin coin = IOTA;
+        Binance binance = new Binance(new BinanceConfig(coin, BTC));
+        binance.putOrderBook(coin, OrderBooks.createFakeOrderBook());
+        binance.setWallet(IOTA, 300);
+        binance.setWallet(BTC, 0.1);
+        Bitfinex bitfinex = new Bitfinex();
+        bitfinex.putOrderBook(coin, OrderBooks.createFakeOrderBookLowerPrice());
+        bitfinex.setWallet(IOTA, 200);
+        bitfinex.setWallet(BTC, 0.1);
+        Exchange cheapest = processor.simulateOperation(coin, binance, bitfinex);
+        Assert.assertTrue(cheapest == bitfinex);
     }
 
     @Test

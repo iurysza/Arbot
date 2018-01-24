@@ -7,6 +7,7 @@ public abstract class Exchange {
 
     private ConcurrentHashMap<Coin, Double> transferFees = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Coin, OrderBook> orderBooks = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Coin, Double> wallets = new ConcurrentHashMap<>();
 
     public Exchange() {
 
@@ -120,5 +121,36 @@ public abstract class Exchange {
         double alt = sellCoin(coinAmount, coin);
         alt -= alt * getTakerFee();
         return alt;
+    }
+
+    /***
+     * Sets a given value of coins to the wallet
+     * @param coin Coin to set the wallet.
+     * @param coinAmount amount of coins to set in the wallet.
+     */
+    public void setWallet(Coin coin, double coinAmount) {
+        wallets.put(coin, coinAmount);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    /***
+     * Returns the amount of coins in the wallet.
+     * @param coin Coin to get the wallet.
+     * @return The amount of coins in the wallet.
+     */
+    public double getWalletAmount(Coin coin) {
+        return wallets.get(coin);
+    }
+
+    public static double getSumInWallets(Coin coin, Exchange... exchanges) {
+        double sum = 0;
+        for (Exchange exchange : exchanges) {
+            sum += exchange.getWalletAmount(coin);
+        }
+        return sum;
     }
 }
