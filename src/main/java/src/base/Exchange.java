@@ -41,13 +41,13 @@ public abstract class Exchange {
         return orderBooks.get(coin);
     }
 
-    protected double buyCoin(double amount, Coin coin) {
-        OrderBook orderBook = orderBooks.get(coin);
+    protected double buyCoin(double amount, Coin coin, OrderBook orderBook) {
+//        OrderBook orderBook = orderBooks.get(coin);
         double bought = 0;
         double amountAvailable;
         for (Order ask : orderBook.asks) {
-            amountAvailable = ask.getAmount();
-            if (amount < ask.getAmount()) {
+            amountAvailable = ask.getBtcAmount();
+            if (amount < amountAvailable) {
                 amountAvailable = amount;
             }
             if (amountAvailable <= 0) {
@@ -61,8 +61,8 @@ public abstract class Exchange {
         return bought;
     }
 
-    protected double sellCoin(double amount, Coin coin) {
-        OrderBook orderBook = orderBooks.get(coin);
+    protected double sellCoin(double amount, Coin coin, OrderBook orderBook) {
+//        OrderBook orderBook = orderBooks.get(coin);
         double sold = 0;
         double amountAvailable;
         for (Order bid : orderBook.bids) {
@@ -103,10 +103,35 @@ public abstract class Exchange {
      * Calculates buying the coinAmount in the given orderBook.
      * @param coinAmount amount of coins to buy.
      * @param coin Coin which will be bought.
+     * @param orderBook Order book in which the buying will happen
+     * @return The amount of new coins after buying.
+     */
+    public double buyCoinWithFee(double coinAmount, Coin coin, OrderBook orderBook) {
+        double alt = buyCoin(coinAmount, coin, orderBook);
+        alt -= alt * getTakerFee();
+        return alt;
+    }
+
+    /***
+     * Calculates buying the coinAmount in the given orderBook.
+     * @param coinAmount amount of coins to buy.
+     * @param coin Coin which will be bought.
      * @return The amount of new coins after buying.
      */
     public double buyCoinWithFee(double coinAmount, Coin coin) {
-        double alt = buyCoin(coinAmount, coin);
+        OrderBook orderBook = orderBooks.get(coin);
+        return buyCoinWithFee(coinAmount, coin, orderBook);
+    }
+
+    /***
+     * Calculates selling the coinAmount in the given orderBook.
+     * @param coinAmount amount of coins to sell.
+     * @param coin Coin which will be sold.
+     * @param orderBook Order book in which the selling will happen
+     * @return The amount of new coins after selling.
+     */
+    public double sellCoinWithFee(double coinAmount, Coin coin, OrderBook orderBook) {
+        double alt = sellCoin(coinAmount, coin, orderBook);
         alt -= alt * getTakerFee();
         return alt;
     }
@@ -118,9 +143,8 @@ public abstract class Exchange {
      * @return The amount of new coins after selling.
      */
     public double sellCoinWithFee(double coinAmount, Coin coin) {
-        double alt = sellCoin(coinAmount, coin);
-        alt -= alt * getTakerFee();
-        return alt;
+        OrderBook orderBook = orderBooks.get(coin);
+        return sellCoinWithFee(coinAmount, coin, orderBook);
     }
 
     /***

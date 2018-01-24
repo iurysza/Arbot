@@ -11,7 +11,7 @@ public class Order {
 
     @Override
     public String toString(){
-        return String.format("P: %.8f, A: %f", price, amount);
+        return String.format("P: %.8f, A: %f, T: %.8f", price, amount, getBtcAmount());
     }
 
     public double getBtcAmount() {

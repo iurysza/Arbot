@@ -24,7 +24,7 @@ public class OrderBooks {
     public static OrderBook createFakeOrderBook() {
         OrderBook orderBook = new OrderBook();
 
-        orderBook.bids.add(new Order(0.00025291, 19.00000000));
+        orderBook.bids.add(new Order(0.00025291, 1900.00000000));
         orderBook.bids.add(new Order(0.00025290, 350.00000000));
         orderBook.bids.add(new Order(0.00025289, 1152.00000000));
         orderBook.bids.add(new Order(0.00025283, 8.00000000));
@@ -55,7 +55,7 @@ public class OrderBooks {
         double priceToDecrease = 0.00000290;
         orderBook.bids.add(new Order(0.00025291 - priceToDecrease, 19.00000000));
         orderBook.bids.add(new Order(0.00025290 - priceToDecrease, 350.00000000));
-        orderBook.bids.add(new Order(0.00025289 - priceToDecrease, 1152.00000000));
+        orderBook.bids.add(new Order(0.00025289 - priceToDecrease, 115.00000000));
         orderBook.bids.add(new Order(0.00025283, 8.00000000));
         orderBook.bids.add(new Order(0.00025281, 380.00000000));
         orderBook.bids.add(new Order(0.00025280, 16041.00000000));

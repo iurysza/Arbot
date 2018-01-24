@@ -2,17 +2,14 @@ package src;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import src.binance.Binance;
-import src.binance.BinanceConfig;
 
 import static org.junit.Assert.assertTrue;
-import static src.base.Coin.BTC;
 import static src.base.Coin.LTC;
 
 public class BinanceTest {
 
-    private final Binance binance = new Binance(new BinanceConfig(LTC,BTC));
+    private final Binance binance = new Binance();
 
     @Before
     public void setUp() throws Exception {
