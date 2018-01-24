@@ -34,6 +34,18 @@ public class OrderBook {
 
     @Override
     public String toString() {
-        String text = "|   BID   |   ASK   |";
+        StringBuilder text = new StringBuilder("|            BID            |            ASK            |\n");
+        int size = Math.min(bids.size(), asks.size());
+        for(int i = 0;i < size;i++ ){
+            Order bid = bids.get(i);
+            Order ask = asks.get(i);
+            text.append("| ")
+                .append(bid.toString())
+                .append(" | ")
+                .append(ask.toString())
+                .append(" |\n");
+        }
+
+        return text.toString();
     }
 }

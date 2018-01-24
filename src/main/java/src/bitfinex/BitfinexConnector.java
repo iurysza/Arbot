@@ -12,9 +12,9 @@ public class BitfinexConnector extends ExchangeConnector<Bitfinex> implements Ex
     private final Bitfinex bitfinex;
     private final BitfinexWebSocketClient socketClient;
 
-    public BitfinexConnector() throws URISyntaxException {
+    public BitfinexConnector(Coin coin) throws URISyntaxException {
         bitfinex = new Bitfinex();
-        socketClient = new BitfinexWebSocketClient(bitfinex, Coin.IOTA, this);
+        socketClient = new BitfinexWebSocketClient(bitfinex, coin, this);
     }
 
     @Override
