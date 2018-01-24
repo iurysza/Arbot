@@ -4,8 +4,8 @@ import src.base.Coin
 import java.net.URI
 
 class BinanceConfig @JvmOverloads constructor(
-        private val fromCoin: Coin,
-        private val toCoin: Coin
+         val fromCoin: Coin,
+         val toCoin: Coin
 ) {
 
     val ordebookUpdate: URI
