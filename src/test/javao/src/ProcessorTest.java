@@ -6,11 +6,11 @@ import org.junit.Test;
 
 import src.base.Coin;
 import src.base.Exchange;
+import src.binance.BinanceConnector;
 import src.bitfinex.Bitfinex;
 import src.binance.Binance;
 import src.binance.BinanceConfig;
 import src.bitfinex.BitfinexConnector;
-import src.data.BinanceConnector;
 
 import static src.base.Coin.BTC;
 import static src.base.Coin.IOTA;

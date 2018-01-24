@@ -5,9 +5,9 @@ import javafx.util.Pair;
 import src.base.Coin;
 import src.base.Exchange;
 import src.base.Order;
-import src.data.BinanceConnector;
+import src.binance.BinanceConnector;
+import src.binance.data.ExchangeConnector;
 import src.bitfinex.BitfinexConnector;
-import src.data.ExchangeConnector;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.DisposableSubscriber;
 

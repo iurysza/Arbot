@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Order {
-    private double price;
-    private double amount;
+    private Double price;
+    private Double amount;
 
     public double getBtcAmount() {
         return price * amount;

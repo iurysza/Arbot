@@ -1,6 +1,5 @@
 package src.binance;
 
-import org.java_websocket.WebSocketListener;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
@@ -13,11 +12,9 @@ import java.net.URI;
  */
 public class BinanceWebSocketClient extends WebSocketClient {
 
-    private WebSocketListener listener;
 
     public BinanceWebSocketClient(URI serverUri, Draft draft) {
         super(serverUri, draft);
-        this.listener = listener;
 
     }
 

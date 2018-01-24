@@ -1,4 +1,4 @@
-package src.data;
+package src.binance.data;
 
 import src.base.Exchange;
 import io.reactivex.BackpressureStrategy;
@@ -22,6 +22,10 @@ public abstract class ExchangeConnector<T extends Exchange> {
 
     public void test(T exchange) {
         onExchangeUpdated(exchange);
+    }
+
+    public interface ExchangeResult {
+        void onResult(Exchange exchange);
     }
 
 }
