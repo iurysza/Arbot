@@ -1,12 +1,12 @@
 package src;
 
+import io.reactivex.Flowable;
+import io.reactivex.subscribers.DisposableSubscriber;
 import src.base.Exchange;
 import src.base.OrderBook;
 import src.binance.BinanceConnector;
+import src.binance.data.ExchangeConnector;
 import src.bitfinex.BitfinexConnector;
-import src.data.ExchangeConnector;
-import io.reactivex.Flowable;
-import io.reactivex.subscribers.DisposableSubscriber;
 
 import static src.base.Coin.IOTA;
 

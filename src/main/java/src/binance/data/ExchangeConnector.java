@@ -1,4 +1,4 @@
-package src.data;
+package src.binance.data;
 
 import src.base.Exchange;
 import io.reactivex.BackpressureStrategy;

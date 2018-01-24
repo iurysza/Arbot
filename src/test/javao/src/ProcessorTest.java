@@ -3,12 +3,12 @@ package src;
 import org.junit.Before;
 import org.junit.Test;
 
-import src.bitfinex.Bitfinex;
 import src.Processor;
 import src.binance.Binance;
 import src.binance.BinanceConfig;
-import src.bitfinex.BitfinexConnector;
-import src.data.BinanceConnector;
+import src.binance.data.BinanceConnector;
+import src.binance.data.BitfinexConnector;
+import src.bitfinex.Bitfinex;
 
 import static src.base.Coin.BTC;
 import static src.base.Coin.IOTA;
