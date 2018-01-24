@@ -1,10 +1,22 @@
 package src.binance;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import src.base.Order;
+import src.base.OrderBook;
+import src.binance.data.ExchangeConnector;
 
 
 /**
@@ -13,13 +25,21 @@ import java.net.URI;
 public class BinanceWebSocketClient extends WebSocketClient {
 
 
+    private Binance binance;
+    private BinanceConfig config;
+    private ExchangeConnector.ExchangeResult exchangeResult;
+    private Gson gson;
+
     public BinanceWebSocketClient(URI serverUri, Draft draft) {
         super(serverUri, draft);
 
     }
 
-    public BinanceWebSocketClient(URI serverURI) {
-        super(serverURI);
+    public BinanceWebSocketClient(@Nonnull Binance binance, BinanceConfig config) {
+        super(config.getOrdebookUpdate());
+        this.binance = binance;
+        this.config = config;
+        gson = new Gson();
     }
 
     @Override
@@ -32,6 +52,25 @@ public class BinanceWebSocketClient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         System.out.println("received: " + message);
+
+        Depth depth = gson.fromJson(message, new TypeToken<Depth>() {}.getType());
+
+        List<Order> askList = getOrders(depth.getAsks());
+        List<Order> bidList = getOrders(depth.getBids());
+
+        OrderBook orderBook = binance.getOrderBook(config.getFromCoin());
+
+        exchangeResult.onResult(binance);
+
+    }
+
+    @NotNull
+    private List<Order> getOrders(List<List<String>> items) {
+        List<Order> orderList = new ArrayList<>();
+        for (List<String> ask : items) {
+            orderList.add(new Order(Double.valueOf(ask.get(0)), Double.valueOf(ask.get(1))));
+        }
+        return orderList;
     }
 
     @Override
@@ -47,4 +86,11 @@ public class BinanceWebSocketClient extends WebSocketClient {
     }
 
 
+    public void setExchangeResult(BinanceConnector exchangeResult) {
+        this.exchangeResult = exchangeResult;
+    }
+
+    public void setConfig(BinanceConfig config) {
+        this.config = config;
+    }
 }

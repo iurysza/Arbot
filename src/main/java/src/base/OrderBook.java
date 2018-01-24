@@ -7,11 +7,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
+@Builder
 public class OrderBook {
     @SerializedName("asks")
-    public final List<Order> asks = new ArrayList<>();
+    public  List<Order> asks = new ArrayList<>();
     @SerializedName("bids")
-    public final List<Order> bids = new ArrayList<>();
+    public  List<Order> bids = new ArrayList<>();
 
     public void sortAsks() {
         Collections.sort(asks, new Comparator<Order>() {
