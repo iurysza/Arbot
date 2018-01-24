@@ -8,16 +8,16 @@ public class OrderBooks {
     public static OrderBook createFakeOrderBookLTCBitfinex() {
         OrderBook orderBook = new OrderBook();
 
-        orderBook.bids.add(new Order(0.01669, 100000));
-        orderBook.asks.add(new Order(0.016569, 100000));
+        orderBook.bids.add(new Order(0.01669, 100000.0));
+        orderBook.asks.add(new Order(0.016569, 100000.0));
         return orderBook;
     }
 
     public static OrderBook createFakeOrderBookLTCBinance() {
         OrderBook orderBook = new OrderBook();
 
-        orderBook.bids.add(new Order(0.016730, 100000));
-        orderBook.asks.add(new Order(0.016659, 100000));
+        orderBook.bids.add(new Order(0.016730, 100000.0));
+        orderBook.asks.add(new Order(0.016659, 100000.0));
         return orderBook;
     }
 

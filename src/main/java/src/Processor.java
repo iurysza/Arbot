@@ -1,6 +1,7 @@
 package src;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
+import io.reactivex.subscribers.DisposableSubscriber;
 import javafx.util.Pair;
 import src.base.Coin;
 import src.base.Exchange;
@@ -8,8 +9,6 @@ import src.base.Order;
 import src.binance.BinanceConnector;
 import src.binance.data.ExchangeConnector;
 import src.bitfinex.BitfinexConnector;
-import io.reactivex.Flowable;
-import io.reactivex.subscribers.DisposableSubscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,8 +99,16 @@ public class Processor {
                         askAmount = coinsAvailableToTrade;
                         lastI = -1;
                     }
+                    Order askToExecute = new Order(ask.getPrice(), askAmount);
+                    double btcAmount = askToExecute.getBtcAmount();
+                    if (btcAmount > btcAvailableToTrade) {
+                        btcAmount = btcAvailableToTrade;
+                        askAmount = btcAmount / askToExecute.getPrice();
+                        askToExecute.setAmount(askAmount);
+                    }
+                    btcAvailableToTrade -= btcAmount;
+                    asksToExecute.add(askToExecute);
                     bidsToExecute.add(new Order(bid.getPrice(), askAmount));
-                    asksToExecute.add(new Order(ask.getPrice(), askAmount));
                     coinsAvailableToTrade -= askAmount;
                     Log.debug("Using all of ask");
                 } else {
@@ -111,8 +118,16 @@ public class Processor {
                         bidAmount = coinsAvailableToTrade;
                         lastI = -1;
                     }
+                    Order askToExecute = new Order(ask.getPrice(), bidAmount);
+                    double btcAmount = askToExecute.getBtcAmount();
+                    if (btcAmount > btcAvailableToTrade) {
+                        btcAmount = btcAvailableToTrade;
+                        bidAmount = btcAmount / askToExecute.getPrice();
+                        askToExecute.setAmount(bidAmount);
+                    }
+                    btcAvailableToTrade -= btcAmount;
+                    asksToExecute.add(askToExecute);
                     bidsToExecute.add(new Order(bid.getPrice(), bidAmount));
-                    asksToExecute.add(new Order(ask.getPrice(), bidAmount));
                     asks.set(i, new Order(ask.getPrice(), askAmount - bidAmount));
                     coinsAvailableToTrade -= bidAmount;
                     break;
@@ -123,16 +138,24 @@ public class Processor {
             }
         }
         long end = System.currentTimeMillis();
-        Observable.just("")
-                .doOnNext(s -> Log.debug("Asks to execute:"))
-                .flatMap(o -> Observable.fromIterable(asksToExecute))
-                .startWith(() -> {
-                    Log.debug("Bids to execute:");
-                    return bidsToExecute.iterator();
-                })
-                .doOnNext(order -> Log.debug(order.toString() + " - " + order.getBtcAmount()))
-                .subscribe();
-//        asksToExecute.forEach(order -> Log.debug(order.toString()));
+        double btcSum = 0;
+        double coinSum = 0;
+        for (Order order : bidsToExecute) {
+            double btcAmount = order.getBtcAmount();
+            btcSum += btcAmount;
+            coinSum += order.getAmount();
+            Log.debug(order.toString() + " - " + btcAmount);
+        }
+        Log.debug("BTC: " + btcSum + " - COIN: " + coinSum);
+        btcSum = 0;
+        coinSum = 0;
+        for (Order order : asksToExecute) {
+            double btcAmount = order.getBtcAmount();
+            btcSum += btcAmount;
+            coinSum += order.getAmount();
+            Log.debug(order.toString() + " - " + order.getBtcAmount());
+        }
+        Log.debug("BTC: " + btcSum + " - COIN: " + coinSum);
 //        Observable.fromIterable(bidsToExecute).forEach(order -> Log.debug(order.toString()));
 
 //        double coinBought = processTrade(coin, cheapest, expensive, orderToBuy, orderToSell, initialBtcSum);

@@ -35,11 +35,11 @@ public class ProcessorTest {
         Binance binance = new Binance(new BinanceConfig(coin, BTC));
         binance.putOrderBook(coin, OrderBooks.createFakeOrderBook());
         binance.setWallet(IOTA, 300);
-        binance.setWallet(BTC, 0.1);
+        binance.setWallet(BTC, 0.01);
         Bitfinex bitfinex = new Bitfinex();
         bitfinex.putOrderBook(coin, OrderBooks.createFakeOrderBookLowerPrice());
         bitfinex.setWallet(IOTA, 200);
-        bitfinex.setWallet(BTC, 0.1);
+        bitfinex.setWallet(BTC, 0.01);
         Exchange cheapest = processor.simulateOperation(coin, binance, bitfinex);
         Assert.assertTrue(cheapest == bitfinex);
     }

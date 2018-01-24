@@ -3,10 +3,6 @@ package src;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.net.URI;
-
 import src.binance.BinanceConfig;
 import src.binance.BinanceWebSocketClient;
 
@@ -22,10 +18,6 @@ public class BinanceWebSocketClientTest {
     @Before
     public void setup() {
         BinanceConfig binanceConfig = new BinanceConfig(IOTA, BTC);
-        URI defaultBinanceOrderBook = binanceConfig.getDefaultBinanceOrderBook();
-//        binanceWebSocketClient = new BinanceWebSocketClient(defaultBinanceOrderBook);
-        binanceWebSocketClient=   Mockito.spy(new BinanceWebSocketClient(defaultBinanceOrderBook));
-
     }
 
     @Test
