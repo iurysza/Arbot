@@ -1,7 +1,6 @@
 package src.base;
 
 import com.google.gson.annotations.SerializedName;
-import src.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,8 +10,10 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class OrderBook {

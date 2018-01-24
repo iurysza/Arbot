@@ -8,7 +8,7 @@ import src.bitfinex.BitfinexConnector;
 
 public class Main {
     public static void main(String... args) throws URISyntaxException {
-        Processor processor = new Processor(BinanceConnector.createDefaultConnector(Coin.LTC), new BitfinexConnector());
+        Processor processor = new Processor(BinanceConnector.createDefaultConnector(Coin.IOTA), new BitfinexConnector(Coin.IOTA));
         processor.start();
     }
 }
