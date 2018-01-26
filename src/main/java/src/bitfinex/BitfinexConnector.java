@@ -9,12 +9,16 @@ import src.binance.data.ExchangeConnector;
 
 public class BitfinexConnector extends ExchangeConnector<Bitfinex> implements ExchangeConnector.ExchangeResult {
 
-    private final Bitfinex bitfinex;
-    private final BitfinexWebSocketClient socketClient;
+    private Bitfinex bitfinex;
+    private BitfinexWebSocketClient socketClient;
 
-    public BitfinexConnector(Coin coin) throws URISyntaxException {
-        bitfinex = new Bitfinex();
-        socketClient = new BitfinexWebSocketClient(bitfinex, coin, this);
+    public BitfinexConnector(Coin coin) {
+        try {
+            bitfinex = new Bitfinex();
+            socketClient = new BitfinexWebSocketClient(bitfinex, coin, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

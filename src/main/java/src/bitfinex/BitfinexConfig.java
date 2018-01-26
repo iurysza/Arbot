@@ -10,7 +10,7 @@ public class BitfinexConfig {
     private Integer length;
 
     public static enum PAIR {
-        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC, IOTBTC
+        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC, IOTBTC, TRXBTC
     }
 
     /**
@@ -38,7 +38,7 @@ public class BitfinexConfig {
     }
 
 
-    public static BitfinexConfig getDefaultConfig(){
+    public static BitfinexConfig getDefaultConfig() {
         return new BitfinexConfig(PAIR.BTCUSD, PRECISION.P0, FREQUENCY.F0, 25);
     }
 
@@ -46,9 +46,9 @@ public class BitfinexConfig {
         this.pair = pair;
     }
 
-    public static BitfinexConfig getConfigByCoin(Coin coin) {
+    public static BitfinexConfig getConfigByCoin(Coin coin) throws Exception {
         BitfinexConfig config = BitfinexConfig.getDefaultConfig();
-        switch (coin){
+        switch (coin) {
             case IOTA:
                 config.setPair(PAIR.IOTBTC);
                 break;
@@ -58,12 +58,20 @@ public class BitfinexConfig {
             case BTC:
                 config.setPair(PAIR.BTCUSD);
                 break;
+            case ETH:
+                config.setPair(PAIR.ETHBTC);
+                break;
+            case TRX:
+                config.setPair(PAIR.TRXBTC);
+                break;
+            default:
+                throw new Exception("Invalid coin " + coin);
         }
 
         return config;
     }
 
-    public String generateJSON(){
+    public String generateJSON() {
         return "{" +
                 "\"event\": \"subscribe\"," +
                 "\"channel\": \"book\"," +
