@@ -25,7 +25,7 @@ public class BitfinexWebSocketClient extends WebSocketClient {
     private Coin coin;
     private ExchangeConnector.ExchangeResult exchangeResult;
 
-    public BitfinexWebSocketClient(Bitfinex bitfinex, Coin coin, ExchangeConnector.ExchangeResult exchangeResult) throws URISyntaxException {
+    BitfinexWebSocketClient(Bitfinex bitfinex, Coin coin, ExchangeConnector.ExchangeResult exchangeResult) throws Exception {
         super(new URI(BitfinexConfig.uri));
         this.bitfinex = bitfinex;
         this.coin = coin;
