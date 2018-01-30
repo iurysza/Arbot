@@ -10,7 +10,7 @@ public class BitfinexConfig {
     private Integer length;
 
     public static enum PAIR {
-        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC, IOTBTC, TRXBTC
+        BTCUSD, LTCUSD, LTCBTC, ETHUSD, ETHBTC, IOTBTC, TRXBTC, SNGBTC
     }
 
     /**
@@ -63,6 +63,9 @@ public class BitfinexConfig {
                 break;
             case TRX:
                 config.setPair(PAIR.TRXBTC);
+                break;
+            case SNGLS:
+                config.setPair(PAIR.SNGBTC);
                 break;
             default:
                 throw new Exception("Invalid coin " + coin);
