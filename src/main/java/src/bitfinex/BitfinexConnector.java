@@ -1,11 +1,11 @@
 package src.bitfinex;
 
 
-import java.net.URISyntaxException;
-
 import src.base.Coin;
 import src.base.Exchange;
 import src.binance.data.ExchangeConnector;
+
+import static src.base.Coin.BTC;
 
 public class BitfinexConnector extends ExchangeConnector<Bitfinex> implements ExchangeConnector.ExchangeResult {
 
@@ -15,6 +15,8 @@ public class BitfinexConnector extends ExchangeConnector<Bitfinex> implements Ex
     public BitfinexConnector(Coin coin) {
         try {
             bitfinex = new Bitfinex();
+            bitfinex.setWallet(coin, 10000);
+            bitfinex.setWallet(BTC, 0.1);
             socketClient = new BitfinexWebSocketClient(bitfinex, coin, this);
         } catch (Exception e) {
             e.printStackTrace();

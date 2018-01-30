@@ -2,18 +2,16 @@ package src.bitfinex;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
 import src.Log;
 import src.Utils;
 import src.base.Coin;
 import src.base.Order;
 import src.base.OrderBook;
 import src.binance.data.ExchangeConnector;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BitfinexWebSocketClient extends WebSocketClient {
 
@@ -141,7 +139,7 @@ public class BitfinexWebSocketClient extends WebSocketClient {
         }
 
         exchangeResult.onResult(bitfinex);
-        Log.print(" ------------------------ "+bitfinex.getName()+" --------------------- ");
-        Log.print(orderBook.toString());
+//        Log.print(" ------------------------ "+bitfinex.getName()+" --------------------- ");
+//        Log.print(orderBook.toString());
     }
 }

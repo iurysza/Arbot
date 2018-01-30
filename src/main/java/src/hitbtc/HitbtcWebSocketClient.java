@@ -89,8 +89,8 @@ public class HitbtcWebSocketClient extends WebSocketClient {
         }
 
         exchangeResult.onResult(hitbtc);
-        Log.print(" ------------------------ "+hitbtc.getName()+" --------------------- ");
-        Log.print(orderBook.toString());
+//        Log.print(" ------------------------ "+hitbtc.getName()+" --------------------- ");
+//        Log.print(orderBook.toString());
     }
 
     private void updateOrders(List<Order> orders, Order order, int index) {
