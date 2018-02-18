@@ -5,7 +5,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import src.binance.data.rest.binanceapi.Intercep
 
 
 class RestConnectionManager <T>{
@@ -15,16 +14,15 @@ class RestConnectionManager <T>{
         this.retrofitService = retrofitService
     }
 
-    companion object {
+     companion object Builder{
         fun <T>createRestConnectionManager(serviceConfig: ServiceConfig<T>): RestConnectionManager<T> {
             val gson = GsonBuilder()
                     .setLenient()
                     .create()
 
 
-
             val client = OkHttpClient.Builder()
-                    .addNetworkInterceptor(Intercep())
+//                    .addNetworkInterceptor(Intercep())
                     .build()
 
             val retrofit = Retrofit.Builder()

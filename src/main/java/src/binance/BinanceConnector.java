@@ -19,7 +19,7 @@ public class BinanceConnector extends ExchangeConnector<Binance> implements Exch
         this.binance = binance;
         this.binanceWebSocketClient = binanceWebSocketClient;
         this.connectionManager = connectionManager;
-        this.binanceWebSocketClient.setExchangeResult(this);
+//        this.binanceWebSocketClient.setExchangeResult(this);
     }
 
     @Override
@@ -42,11 +42,11 @@ public class BinanceConnector extends ExchangeConnector<Binance> implements Exch
     public static BinanceConnector createDefaultConnector(Coin coin) {
         BinanceConfig config = new BinanceConfig(coin, BTC);
         Binance binance = new Binance();
-        BinanceWebSocketClient binanceWebSocketClient = new BinanceWebSocketClient(binance,config);
+        BinanceWebSocketClient binanceWebSocketClient = new BinanceWebSocketClient(binance,config,null);
 
         //noinspection unchecked
-        ServiceConfig<BinanceServices> binanceService = new ServiceConfig(BinanceConfig.Companion.getORDER_BOOK_SNAPSHOT(), BinanceServices.class);
-        RestConnectionManager<BinanceServices> connectionManager = RestConnectionManager.Companion.createRestConnectionManager(binanceService);
+        ServiceConfig<BinanceServices> binanceService = new ServiceConfig(BinanceConfig.ORDER_BOOK_SNAPSHOT, BinanceServices.class);
+        RestConnectionManager<BinanceServices> connectionManager = RestConnectionManager.Builder.createRestConnectionManager(binanceService);
 
         return new BinanceConnector(binance,binanceWebSocketClient, connectionManager);
     }

@@ -8,7 +8,7 @@ interface BinanceServices {
     @GET("depth")
     fun loadBookSnap(
             @Query("symbol") symbol: String,
-            @Query("limit") limit: Int = 1000
-    ): Flowable<List<BookSnap>>
+            @Query("limit") limit: Int = 5
+    ): Flowable<BookSnap>
 
 }

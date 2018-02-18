@@ -25,9 +25,9 @@ class BinanceConfig @JvmOverloads constructor(
     }
 
     companion object {
-        public val ORDER_BOOK_UPDATE = "wss://stream.binance.com:9443/ws/"
-        public val ORDER_BOOK_SNAPSHOT = "https://www.binance.com/api/v1/"
-        private val DEPTH = "@depth"
+        const val ORDER_BOOK_UPDATE = "wss://stream.binance.com:9443/ws/"
+        const val ORDER_BOOK_SNAPSHOT = "https://www.binance.com/api/v1/"
+        const val  DEPTH = "@depth"
     }
 
 }
