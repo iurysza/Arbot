@@ -1,19 +1,21 @@
 package src;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class WatcherServer implements Runnable {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException, InterruptedException {
         WatcherServer server = new WatcherServer(9000);
         new Thread(server).start();
 
         try {
-            Thread.sleep(20 * 1000);
+            for (int i = 0; i < 20; i++) {
+                server.sendData("Data: " + i + "\n");
+                Thread.sleep(1 * 1000);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -26,8 +28,26 @@ public class WatcherServer implements Runnable {
     protected boolean isStopped = false;
     protected Thread runningThread = null;
 
+    private ArrayList<Socket> clients = new ArrayList<>();
+
     public WatcherServer(int port) {
         this.serverPort = port;
+    }
+
+    private void sendData(String s) {
+        for (Socket client : clients) {
+            if (client.isClosed()) {
+                continue;
+            }
+            try {
+                Log.debug("Sending data: " + s);
+                OutputStream output = client.getOutputStream();
+                output.write(s.getBytes());
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void run() {
@@ -39,6 +59,8 @@ public class WatcherServer implements Runnable {
             Socket clientSocket = null;
             try {
                 clientSocket = this.serverSocket.accept();
+                new Thread(new WorkerRunnable(clientSocket, "Multithreaded Server")).start();
+                clients.add(clientSocket);
             } catch (IOException e) {
                 if (isStopped()) {
                     System.out.println("Server Stopped.");
@@ -47,10 +69,6 @@ public class WatcherServer implements Runnable {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            new Thread(
-                    new WorkerRunnable(
-                            clientSocket, "Multithreaded Server")
-            ).start();
         }
         System.out.println("Server Stopped.");
     }
@@ -77,32 +95,32 @@ public class WatcherServer implements Runnable {
         }
     }
 
-    public static class WorkerRunnable implements Runnable{
+    public static class WorkerRunnable implements Runnable {
 
         protected Socket clientSocket = null;
-        protected String serverText   = null;
+        protected String serverText = null;
 
         public WorkerRunnable(Socket clientSocket, String serverText) {
             this.clientSocket = clientSocket;
-            this.serverText   = serverText;
+            this.serverText = serverText;
         }
 
         public void run() {
-            try {
-                InputStream input  = clientSocket.getInputStream();
-                OutputStream output = clientSocket.getOutputStream();
-                long time = System.currentTimeMillis();
-                output.write(("HTTP/1.1 200 OK\n\nWorkerRunnable: " +
-                        this.serverText + " - " +
-                        time +
-                        "").getBytes());
-                output.close();
-                input.close();
-                System.out.println("Request processed: " + time);
-            } catch (IOException e) {
-                //report exception somewhere.
-                e.printStackTrace();
-            }
+//            try {
+//                InputStream input = clientSocket.getInputStream();
+//                OutputStream output = clientSocket.getOutputStream();
+//                long time = System.currentTimeMillis();
+//                output.write(("HTTP/1.1 200 OK\n\nWorkerRunnable: " +
+//                        this.serverText + " - " +
+//                        time +
+//                        "").getBytes());
+//                output.close();
+//                input.close();
+//                System.out.println("Request processed: " + time);
+//            } catch (IOException e) {
+//                //report exception somewhere.
+//                e.printStackTrace();
+//            }
         }
     }
 }

@@ -13,7 +13,10 @@ import src.base.Order;
 import src.base.OrderBook;
 import src.binance.data.ExchangeConnector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static src.base.Coin.BTC;
