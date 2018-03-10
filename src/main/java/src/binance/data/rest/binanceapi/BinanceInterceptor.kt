@@ -8,7 +8,7 @@ import okio.Buffer
 import src.Log
 import java.io.IOException
 
-class Intercep : Interceptor {
+class BinanceInterceptor : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -24,7 +24,7 @@ class Intercep : Interceptor {
 
         // now we have extracted the response body but in the process
         // we have consumed the original reponse and can't read it again
-        // so we need to build a new one to return from this method
+        // so we need to with a new one to return from this method
 
         val newResponse = response.newBuilder().body(ResponseBody.create(responseBody!!.contentType(), responseBodyString.toByteArray())).build()
 

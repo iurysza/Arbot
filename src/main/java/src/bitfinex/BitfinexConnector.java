@@ -3,7 +3,7 @@ package src.bitfinex;
 
 import src.base.Coin;
 import src.base.Exchange;
-import src.binance.data.ExchangeConnector;
+import src.ExchangeConnector;
 
 import static src.base.Coin.BTC;
 

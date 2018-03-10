@@ -1,10 +1,10 @@
 package src.hitbtc;
 
+import java.net.URISyntaxException;
+
+import src.ExchangeConnector;
 import src.base.Coin;
 import src.base.Exchange;
-import src.binance.data.ExchangeConnector;
-
-import java.net.URISyntaxException;
 
 import static src.base.Coin.BTC;
 
