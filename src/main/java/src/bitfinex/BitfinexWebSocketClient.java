@@ -7,7 +7,7 @@ import src.Utils;
 import src.base.Coin;
 import src.base.Order;
 import src.base.OrderBook;
-import src.binance.data.ExchangeConnector;
+import src.ExchangeConnector;
 
 import java.net.URI;
 import java.util.ArrayList;

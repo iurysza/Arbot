@@ -23,6 +23,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
     maven {
         url "https://plugins.gradle.org/m2/"
     }
@@ -41,6 +42,10 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'io.reactivex.rxjava2:rxkotlin:2.2.0'
+    compile 'com.github.binance-exchange:binance-java-api:6f53a881fc'
+
+
     compile "org.java-websocket:Java-WebSocket:1.3.7"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'

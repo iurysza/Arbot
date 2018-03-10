@@ -2,16 +2,17 @@ package src.hitbtc;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import src.ExchangeConnector;
 import src.Log;
 import src.Utils;
 import src.base.Coin;
 import src.base.Order;
 import src.base.OrderBook;
-import src.binance.data.ExchangeConnector;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 
 public class HitbtcWebSocketClient extends WebSocketClient {
     public static final int MAX_SIZE = 25;
