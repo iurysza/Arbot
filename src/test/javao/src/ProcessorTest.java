@@ -3,6 +3,7 @@ package src;
 import org.junit.Before;
 import org.junit.Test;
 import src.base.Coin;
+import src.base.OrderBook;
 import src.binance.Binance;
 import src.binance.BinanceConnector;
 import src.bitfinex.Bitfinex;
@@ -42,7 +43,8 @@ public class ProcessorTest {
         bitfinex.setWallet(IOTA, 2000);
         bitfinex.setWallet(TRX, 20000);
         bitfinex.setWallet(BTC, 0.5);
-        processor.simulateOperation(coin, Arrays.asList(hitbtc, bitfinex));
+        OrderBook orderBook = processor.simulateOperation(coin, Arrays.asList(hitbtc, bitfinex));
+        System.out.println(orderBook);
 //        Assert.assertTrue(cheapest == bitfinex);
     }
 

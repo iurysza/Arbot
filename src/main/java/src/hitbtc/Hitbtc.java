@@ -13,12 +13,12 @@ public class Hitbtc extends Exchange{
 
     @Override
     public double getMakerFee() {
-        return 0.01;
+        return 0.0001;
     }
 
     @Override
     public double getTakerFee() {
-        return 0.1;
+        return 0.001;
     }
 
     @Override

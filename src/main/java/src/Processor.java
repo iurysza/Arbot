@@ -1,9 +1,13 @@
 package src;
 
+import com.google.gson.Gson;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subscribers.DisposableSubscriber;
 import javafx.util.Pair;
@@ -13,10 +17,12 @@ import src.base.Order;
 import src.base.OrderBook;
 import src.binance.data.ExchangeConnector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static src.base.Coin.BTC;
@@ -24,16 +30,47 @@ import static src.base.Coin.BTC;
 public class Processor {
 
     public static final double THRESHOLD = 0.5;
-    private ExchangeConnector binanceConnector;
-    private ExchangeConnector bitfinexConnector;
     private Coin coin;
     private ExchangeConnector[] connectors;
+    private PublishSubject<List<Exchange>> serverSubject = PublishSubject.create();
 
-    public Processor(Coin coin, ExchangeConnector... connectors) {
+    public Processor(Coin coin, ExchangeConnector... connectors) throws IOException {
         this.coin = coin;
-//        this.binanceConnector = binanceConnector;
-//        this.bitfinexConnector = bitfinexConnector;
         this.connectors = connectors;
+        Server server = new Server(9000);
+        server.start();
+        Gson gson = new Gson();
+        serverSubject.subscribeOn(Schedulers.io())
+                .map(gson::toJson)
+                .doOnNext(server::broadcast)
+//                .debounce(10, TimeUnit.MILLISECONDS)
+                .debounce(1, TimeUnit.SECONDS)
+//                .buffer(1, TimeUnit.SECONDS)
+//                .filter(x -> !x.isEmpty())
+//                .map(x -> x.get(x.size()-1))
+                .distinctUntilChanged()
+                .doOnNext(Log::writeExchangeToDisk)
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable s) {
+
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        t.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private Pair<Exchange, Exchange> getCheapAndExpensive(Coin coin, List<Exchange> exchanges) {
@@ -52,8 +89,13 @@ public class Processor {
                 mostExpensivePrice = bidPrice;
                 expensive = exchange;
             }
+            Log.debug(exchange + "::: Ask: " + askPrice + " --- " + bidPrice);
         }
-
+        Log.debug("Cheap: " + cheap + "(" + cheapestPrice + ") --- Expensive: " + expensive + "(" + mostExpensivePrice + ")");
+        if (cheapestPrice > mostExpensivePrice) {
+            Log.debug("Skipping...");
+            return null;
+        }
         return new Pair<>(cheap, expensive);
     }
 
@@ -64,6 +106,9 @@ public class Processor {
 //        Order order2 = exchanges.get(0).getOrderBook(coin).bids.get(0);
 //        order2.setPrice(order2.getPrice() - 0.00000004);
         Pair<Exchange, Exchange> cheapAndExpensive = getCheapAndExpensive(coin, exchanges);
+        if (cheapAndExpensive == null) {
+            return null;
+        }
         Exchange cheapest = cheapAndExpensive.getKey();
         Exchange expensive = cheapAndExpensive.getValue();
         if (cheapest == null || expensive == null) {
@@ -90,8 +135,8 @@ public class Processor {
 //        Order orderToBuy = asks.get(buyBookCount);
 //        Order orderToSell = bids.get(sellBookCount);
 
-        List<Order> bidsToExecute = new ArrayList<>();
-        List<Order> asksToExecute = new ArrayList<>();
+        CopyOnWriteArrayList<Order> bidsToExecute = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<Order> asksToExecute = new CopyOnWriteArrayList<>();
         int lastI = 0;
         double coinsAvailableToTrade = maxToTrade;
         double btcAvailableToTrade = btcMaxToTrade;
@@ -254,7 +299,7 @@ public class Processor {
         return maxToBuy;
     }
 
-    public void start() {
+    public void start()  {
         List<Flowable<Exchange>> flowables = new ArrayList<>();
         for (ExchangeConnector connector : connectors) {
             connector.start();
@@ -279,14 +324,19 @@ public class Processor {
                     for (Object object : objects) {
                         exchanges.add(((Exchange) object));
                     }
+                    serverSubject.onNext(exchanges);
                     return exchanges;
                 }, 1)
                 .zipWith(delayFlowable, new BiFunction<List<Exchange>, Boolean, OrderBook>() {
                     @Override
                     public OrderBook apply(List<Exchange> exchanges, Boolean delay) throws Exception {
-                        OrderBook orderBook = simulateOperation(coin, exchanges);
+                        OrderBook orderBook = null;
+//                        OrderBook orderBook = simulateOperation(coin, exchanges);
                         if (orderBook == null) {
                             orderBook = placeholder;
+                        } else {
+                            Log.activity("HAS OPPORTUNITY");
+                            Log.activity(orderBook.toString());
                         }
                         return orderBook;
                     }
@@ -295,7 +345,7 @@ public class Processor {
                 .subscribe(new DisposableSubscriber<Boolean>() {
                     @Override
                     public void onNext(Boolean o) {
-                        Log.print(o.toString());
+//                        Log.print(o.toString());
                         subject.onNext(o);
                     }
 

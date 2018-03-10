@@ -128,7 +128,7 @@ public class BitfinexWebSocketClient extends WebSocketClient {
             if(index == orders.size()){
                 orders.add(new Order(price, Math.abs(amount)));
             } else if (price.equals(orders.get(index).getPrice())){
-                orders.get(index).setAmount(Math.abs(amount));
+                orders.set(index, new Order(orders.get(index).getPrice(), Math.abs(amount)));
             } else {
                 orders.add(index, new Order(price, Math.abs(amount)));
             }

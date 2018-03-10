@@ -1,16 +1,12 @@
 package src.base;
 
 import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,9 +14,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OrderBook {
     @SerializedName("asks")
-    public  List<Order> asks = new ArrayList<>();
+    public CopyOnWriteArrayList<Order> asks = new CopyOnWriteArrayList<>();
     @SerializedName("bids")
-    public  List<Order> bids = new ArrayList<>();
+    public CopyOnWriteArrayList<Order> bids = new CopyOnWriteArrayList<>();
 
     @Override
     public String toString() {

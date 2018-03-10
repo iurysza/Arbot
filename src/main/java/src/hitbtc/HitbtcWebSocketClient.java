@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class HitbtcWebSocketClient extends WebSocketClient {
+    public static final int MAX_SIZE = 25;
     private HitbtcConfig config;
     private Hitbtc hitbtc;
     private Coin coin;
@@ -29,13 +30,13 @@ public class HitbtcWebSocketClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        Log.print("Successfully connected with "+hitbtc.getName()+"...");
+        Log.print("Successfully connected with " + hitbtc.getName() + "...");
         this.subscribeToOrderBook();
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        Log.print("Disconnected from "+hitbtc.getName()+"...");
+        Log.print("Disconnected from " + hitbtc.getName() + "...");
     }
 
     @Override
@@ -46,7 +47,7 @@ public class HitbtcWebSocketClient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         HitbtcResponse response = Utils.gson.fromJson(message, HitbtcResponse.class);
-        if(response == null || response.method == null)
+        if (response == null || response.method == null)
             return;
 
         if (response.method.equals("snapshotOrderbook")) {
@@ -68,24 +69,32 @@ public class HitbtcWebSocketClient extends WebSocketClient {
         hitbtc.putOrderBook(coin, orderBook);
     }
 
-    private void getUpdate(HitbtcResponse response){
+    private synchronized void getUpdate(HitbtcResponse response) {
         OrderBook orderBook = hitbtc.getOrderBook(coin);
         List<Order> asks = orderBook.asks;
         List<Order> bids = orderBook.bids;
 
-        for(Order ask : response.params.ask){
+        for (Order ask : response.params.ask) {
 
             int index = 0;
-            while(index < asks.size() && ask.getPrice() > asks.get(index).getPrice()) index++;
-
-            updateOrders(asks, ask, index);
+            while (index < asks.size() && ask.getPrice() > asks.get(index).getPrice()) index++;
+            if (index < MAX_SIZE) {
+                updateOrders(asks, ask, index);
+            }
         }
 
-        for(Order bid : response.params.bid){
+        for (Order bid : response.params.bid) {
             int index = 0;
-            while(index < bids.size() && bid.getPrice() < bids.get(index).getPrice()) index++;
-
-            updateOrders(bids, bid, index);
+            while (index < bids.size() && bid.getPrice() < bids.get(index).getPrice()) index++;
+            if (index < MAX_SIZE) {
+                updateOrders(bids, bid, index);
+            }
+        }
+        if (asks.size() > MAX_SIZE) {
+            asks.subList(MAX_SIZE, asks.size()).clear();
+        }
+        if (bids.size() > MAX_SIZE) {
+            bids.subList(MAX_SIZE, bids.size()).clear();
         }
 
         exchangeResult.onResult(hitbtc);
@@ -94,11 +103,13 @@ public class HitbtcWebSocketClient extends WebSocketClient {
     }
 
     private void updateOrders(List<Order> orders, Order order, int index) {
-        if(order.getAmount() <= 0) {
-            orders.remove(index);
-        } else if (index < orders.size() && order.getPrice().equals(orders.get(index).getPrice())){
-            orders.get(index).setAmount(order.getAmount());
-        } else{
+        if (order.getAmount() <= 0) {
+            if (index < orders.size()) {
+                orders.remove(index);
+            }
+        } else if (index < orders.size() && order.getPrice().equals(orders.get(index).getPrice())) {
+            orders.set(index, new Order(order.getPrice(), order.getAmount()));
+        } else {
             orders.add(index, order);
         }
     }

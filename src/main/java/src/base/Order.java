@@ -8,9 +8,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class Order {
     @SerializedName("price")
-    private Double price;
+    private volatile Double price;
     @SerializedName("size")
-    private Double amount;
+    private volatile Double amount;
 
     @Override
     public String toString(){

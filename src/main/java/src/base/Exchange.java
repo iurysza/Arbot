@@ -8,9 +8,14 @@ public abstract class Exchange {
     private ConcurrentHashMap<Coin, Double> transferFees = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Coin, OrderBook> orderBooks = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Coin, Double> wallets = new ConcurrentHashMap<>();
+    private String name;
+    private Double makerFee;
+    private Double takerFee;
 
     public Exchange() {
-
+        name = getName();
+        makerFee = getMakerFee();
+        takerFee = getTakerFee();
     }
 
     public abstract String getName();
